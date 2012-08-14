@@ -1,0 +1,30 @@
+{
+  "name": "node-http-cache",
+  "version": "0.0.0",
+  "homepage": "https://github.com/d11wtq/node-http-cache",
+  "description": "A HTTP caching proxy implemented in node.js.\nIt is intended to be used along with http-proxy, but is backend-agnostic.",
+  "author": "Chris Corbyn <chris@w3style.co.uk>",
+  "maintainers": [
+    "d11wtq <chris@w3style.co.uk>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/d11wtq/node-http-cache.git"
+  },
+  "files": [
+    "lib", "README.md", "LICENSE"
+  ],
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/d11wtq/node-http-cache.git"
+  },
+  "keywords": [
+    "http",
+    "caching",
+    "proxy"
+  ],
+  "main": "./lib/node-http-cache",
+  "license": "MIT"
+}
