@@ -31,12 +31,15 @@ var httpCache = require('http-cache');
 
 var storage = new httpCache.FileStorage('/some/path', {some: 'options'})
 
-storage.createServer(function(req, res) {
-  res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8',
-                      'Cache-Control: max-age=600, public'});
-  res.write('Hello World!');
-  res.end();
-}).listen(8080);
+httpCache.createServer(
+  function(req, res) {
+    res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8',
+                        'Cache-Control: max-age=600, public'});
+    res.write('Hello World!');
+    res.end();
+  },
+  storage
+).listen(8080);
 ```
 
 ### In conjunction with http-proxy
@@ -51,9 +54,11 @@ var httpCache = require('http-cache')
 
 var storage = new httpCache.FileStorage('/some/path', {some: 'options'})
 
-storage.createServer(httpProxy.createServer(9000, 'localhost')).listen(8080);
+httpCache.createServer(
+  httpProxy.createServer(9000, 'localhost'),
+  storage
+).listen(8080);
 ```
 
-Note that any `http.Server` instance can be used in this way; http-proxy just
-makes sense for general use.
-
+Note that any `http.Server` instance can be wrapped in this way; http-proxy just
+makes good sense for general use.
