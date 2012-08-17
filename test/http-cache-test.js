@@ -13,21 +13,6 @@ var helper    = require('./test-helper')
 
 describe('http-cache', function(){
   describe('#createServer()', function(){
-    function request(method, url, headers){
-      var req = new http.IncomingMessage();
-
-      req.method      = method  || 'GET';
-      req.url         = url     || '/';
-      req.headers     = headers || {};
-      req.httpVersion = '1.1';
-
-      return req;
-    };
-
-    function response(req){
-      return new http.ServerResponse(req);
-    };
-
     describe('with a callback', function(){
       function server(){
         return httpCache.createServer(function(req, res){
@@ -40,8 +25,8 @@ describe('http-cache', function(){
       });
 
       describe('when executed', function(){
-        var req = request()
-          , res = response(req)
+        var req = helper.createRequest()
+          , res = helper.createResponse(req)
           ;
 
         beforeEach(function(){
