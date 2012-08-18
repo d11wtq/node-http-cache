@@ -8,37 +8,51 @@
 /* Convenience stuff for testing */
 
 /**
- * Used to provide RSpec-style let(), with override support.
+ * Used to provide RSpec-like memoizers with let() semantics.
+ *
+ * @example
+ *   // set the initial memo value
+ *   var arr = memo().is(function(){ return []; });
+ *
+ *   // override the memo value
+ *   arr.is(function(){ return ['a', 'b', 'c']; });
+ *
+ * The value can be obtained by calling arr() from inside any BDD example.
  */
 var Memoizer = function() {
   var value
-    , stack    = []
-    , invoked  = false
-    , reset    = function() { invoked = false; value = undefined; }
-    , popStack = function() { stack.pop(); }
+    , stack = []
+    , invoked = false
     ;
 
-  this.let = function(callback) {
-    var memoizer = function() {
-      if (!invoked) {
-        invoked = true;
-        value   = callback();
-      }
-      return value;
-    };
-    memoizer.let = this.let;
+  var memoizer = function() {
+    if (!invoked) {
+      value   = stack[stack.length - 1]();
+      invoked = true;
+    }
+    return value;
+  };
 
-    stack.push(memoizer);
+  var reset = function() {
+    stack.pop();
+    invoked = false;
+    value   = undefined;
+  };
+
+  this.is = function(callback) {
+    beforeEach(function() { stack.push(callback); });
 
     afterEach(reset);
-    after(popStack);
 
     return memoizer;
   };
+
+  memoizer.is = this.is;
 };
 
-Memoizer.let = function(callback) {
-  return new Memoizer().let(callback);
+/** Return a new Memoizer object */
+Memoizer.memo = function() {
+  return new Memoizer();
 };
 
 module.exports = {
@@ -46,7 +60,7 @@ module.exports = {
   http:          require('http'),
   sinon:         require('sinon'),
 
-  let: Memoizer.let,
+  memo: Memoizer.memo,
 
   createRequest: function createRequest(method, url, headers){
     var req = new this.http.IncomingMessage();

@@ -10,16 +10,16 @@ var helper    = require('./test-helper')
   , http      = require('http')
   , assert    = require('assert')
   , sinon     = helper.sinon
-  , let       = helper.let
+  , memo      = helper.memo
   ;
 
 describe('http-cache', function(){
   describe('#createServer()', function(){
-    var spy     = let(function(){ return sinon.spy(); })
-      , handler = let(function(){ return spy(); })
-      , server  = let(function(){ return httpCache.createServer(handler()); })
-      , req     = let(function(){ return helper.createRequest(); })
-      , res     = let(function(){ return helper.createResponse(req()); })
+    var spy     = memo().is(function(){ return sinon.spy(); })
+      , handler = memo().is(function(){ return spy(); })
+      , server  = memo().is(function(){ return httpCache.createServer(handler()); })
+      , req     = memo().is(function(){ return helper.createRequest(); })
+      , res     = memo().is(function(){ return helper.createResponse(req()); })
       ;
 
     describe('with a callback', function(){
@@ -39,7 +39,7 @@ describe('http-cache', function(){
     });
 
     describe('with another http server', function(){
-      handler.let(function(){ return http.createServer(spy()); });
+      handler.is(function(){ return http.createServer(spy()); });
 
       describe('when executed', function(){
         beforeEach(function(){
