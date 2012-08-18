@@ -9,6 +9,27 @@
 module.exports = {
   httpCache:     require('../lib/http-cache'),
   http:          require('http'),
+  sinon:         require('sinon'),
+
+  let: function (callback) {
+    var value, called = false;
+    var memoizer = function() {
+      if (called) {
+        return value;
+      } else {
+        called = true;
+      }
+
+      return value = callback();
+    };
+
+    afterEach(function() {
+      value  = undefined;
+      called = false;
+    });
+
+    return memoizer;
+  },
 
   createRequest: function createRequest(method, url, headers){
     var req = new this.http.IncomingMessage();

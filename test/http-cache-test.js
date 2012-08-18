@@ -9,32 +9,33 @@ var helper    = require('./test-helper')
   , httpCache = helper.httpCache
   , http      = require('http')
   , assert    = require('assert')
+  , sinon     = helper.sinon
+  , let       = helper.let
   ;
 
 describe('http-cache', function(){
   describe('#createServer()', function(){
     describe('with a callback', function(){
-      function server(){
-        return httpCache.createServer(function(req, res){
-          res.setHeader('X-Foo', 'bar');
-        });
-      };
+      var handler = let(function(){ return sinon.spy(); });
+      var server  = let(function(){
+        return httpCache.createServer(handler());
+      });
 
       it('returns a http.Server', function(){
         assert.ok(server() instanceof http.Server);
       });
 
       describe('when executed', function(){
-        var req = helper.createRequest()
-          , res = helper.createResponse(req)
+        var req = let(function(){ return helper.createRequest(); })
+          , res = let(function(){ return helper.createResponse(req); })
           ;
 
         beforeEach(function(){
-          server().emit('request', req, res);
+          server().emit('request', req(), res());
         });
 
         it('invokes the callback', function(){
-          assert.equal(res.getHeader('X-Foo'), 'bar');
+          assert(handler().calledWith(req(), res()));
         });
       });
     });

@@ -15,7 +15,8 @@
     "lib", "README.md", "LICENSE"
   ],
   "devDependencies": {
-    "mocha": ""
+    "mocha": "",
+    "sinon": ""
   },
   "scripts": {
   },
