@@ -46,15 +46,12 @@ var httpCache = require('http-cache')
 
 // the the handler function will only be invoked every 600 seconds, as the
 // storage will provide the response for 600 seonds at a time
-httpCache.createServer(
-  function(req, res) {
-    res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8',
-                        'Cache-Control: max-age=600, public'});
-    res.write('This response was generated at ' + new Date());
-    res.end();
-  },
-  storage
-).listen(8080);
+httpCache.createServer(function(req, res) {
+  res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8',
+                      'Cache-Control: max-age=600, public'});
+  res.write('This response was generated at ' + new Date());
+  res.end();
+}, storage).listen(8080);
 ```
 
 ### Used to wrap an existing `http.Server`
@@ -74,14 +71,12 @@ var httpCache = require('http-cache')
 
 // the the handler function will only be invoked every 600 seconds, as the
 // storage will provide the response for 600 seonds at a time
-server = http.createServer(
-  function(req, res) {
-    res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8',
-                        'Cache-Control: max-age=600, public'});
-    res.write('This response was generated at ' + new Date());
-    res.end();
-  }
-);
+var server = http.createServer(function(req, res) {
+  res.writeHead(200, {'Content-Type': 'text/plain; charset=utf-8',
+                      'Cache-Control: max-age=600, public'});
+  res.write('This response was generated at ' + new Date());
+  res.end();
+});
 
 httpCache.createServer(server, storage).listen(8080);
 ```
