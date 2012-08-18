@@ -15,27 +15,39 @@ var helper    = require('./test-helper')
 
 describe('http-cache', function(){
   describe('#createServer()', function(){
-    describe('with a callback', function(){
-      var handler = let(function(){ return sinon.spy(); });
-      var server  = let(function(){
-        return httpCache.createServer(handler());
-      });
+    var spy     = let(function(){ return sinon.spy(); })
+      , handler = let(function(){ return spy(); })
+      , server  = let(function(){ return httpCache.createServer(handler()); })
+      , req     = let(function(){ return helper.createRequest(); })
+      , res     = let(function(){ return helper.createResponse(req()); })
+      ;
 
+    describe('with a callback', function(){
       it('returns a http.Server', function(){
         assert.ok(server() instanceof http.Server);
       });
 
       describe('when executed', function(){
-        var req = let(function(){ return helper.createRequest(); })
-          , res = let(function(){ return helper.createResponse(req); })
-          ;
-
         beforeEach(function(){
           server().emit('request', req(), res());
         });
 
         it('invokes the callback', function(){
-          assert(handler().calledWith(req(), res()));
+          assert(spy().calledWith(req(), res()));
+        });
+      });
+    });
+
+    describe('with another http server', function(){
+      handler.let(function(){ return http.createServer(spy()); });
+
+      describe('when executed', function(){
+        beforeEach(function(){
+          server().emit('request', req(), res());
+        });
+
+        it('invokes its callback', function(){
+          assert(spy().calledWith(req(), res()));
         });
       });
     });
