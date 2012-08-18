@@ -1,5 +1,5 @@
 <img src="https://raw.github.com/d11wtq/node-http-cache/master/cash.jpg"
-  alt="Cash" title="You say caish, I say cache" align="center" />
+  alt="Cash" title="You say caish, I say cache" style="text-align: center;" />
 
 # A HTTP Caching Proxy Using Node.js
 
