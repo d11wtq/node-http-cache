@@ -15,39 +15,58 @@ var helper    = require('./test-helper')
 
 describe('http-cache', function(){
   describe('#createServer()', function(){
-    var spy     = memo().is(function(){ return sinon.spy(); })
-      , handler = memo().is(function(){ return spy(); })
-      , server  = memo().is(function(){ return httpCache.createServer(handler()); })
-      , req     = memo().is(function(){ return helper.createRequest(); })
-      , res     = memo().is(function(){ return helper.createResponse(req()); })
+    var handlerSpy = memo().is(function(){ return sinon.spy(); })
+      , storageSpy = memo().is(function(){ return { handleRequest: sinon.stub() }; })
+      , handler    = memo().is(function(){ return handlerSpy(); })
+      , server     = memo().is(function(){ return httpCache.createServer(handler(), storageSpy()); })
+      , req        = memo().is(function(){ return helper.createRequest(); })
+      , res        = memo().is(function(){ return helper.createResponse(req()); })
       ;
 
-    describe('with a callback', function(){
-      it('returns a http.Server', function(){
-        assert.ok(server() instanceof http.Server);
-      });
-
-      describe('when executed', function(){
-        beforeEach(function(){
-          server().emit('request', req(), res());
-        });
-
-        it('invokes the callback', function(){
-          assert(spy().calledWith(req(), res()));
-        });
-      });
+    it('returns a http.Server', function(){
+      assert(server() instanceof http.Server);
     });
 
-    describe('with another http server', function(){
-      handler.is(function(){ return http.createServer(spy()); });
+    describe('on "request" event', function(){
+      beforeEach(function(){
+        server().emit('request', req(), res());
+      });
 
-      describe('when executed', function(){
-        beforeEach(function(){
-          server().emit('request', req(), res());
+      describe('with a callback handler', function(){
+        context('when the storage handles the event', function(){
+          before(function() { storageSpy().handleRequest.returns(true); });
+
+          it('does not invoke the callback', function(){
+            assert(!handlerSpy().calledWith(req(), res()));
+          });
         });
 
-        it('invokes its callback', function(){
-          assert(spy().calledWith(req(), res()));
+        context('when the storage does not handle the event', function(){
+          before(function() { storageSpy().handleRequest.returns(false); });
+
+          it('invokes the callback', function(){
+            assert(handlerSpy().calledWith(req(), res()));
+          });
+        });
+      });
+
+      describe('with a delegate server', function(){
+        handler.is(function(){ return http.createServer(handlerSpy()); });
+
+        context('when the storage handles the event', function(){
+          before(function() { storageSpy().handleRequest.returns(true); });
+
+          it('does not invoke the server callback', function(){
+            assert(!handlerSpy().calledWith(req(), res()));
+          });
+        });
+
+        context('when the storage does not handle the event', function(){
+          before(function() { storageSpy().handleRequest.returns(false); });
+
+          it('invokes the server callback', function(){
+            assert(handlerSpy().calledWith(req(), res()));
+          });
         });
       });
     });
