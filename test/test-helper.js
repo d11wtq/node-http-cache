@@ -7,60 +7,11 @@
 
 /* Convenience stuff for testing */
 
-/**
- * Used to provide RSpec-like memoizers with let() semantics.
- *
- * @example
- *   // set the initial memo value
- *   var arr = memo().is(function(){ return []; });
- *
- *   // override the memo value
- *   arr.is(function(){ return ['a', 'b', 'c']; });
- *
- * The value can be obtained by calling arr() from inside any BDD example.
- */
-var Memoizer = function() {
-  var value
-    , stack = []
-    , invoked = false
-    ;
-
-  var memoizer = function() {
-    if (!invoked) {
-      value   = stack[stack.length - 1]();
-      invoked = true;
-    }
-    return value;
-  };
-
-  var reset = function() {
-    stack.pop();
-    invoked = false;
-    value   = undefined;
-  };
-
-  this.is = function(callback) {
-    beforeEach(function() { stack.push(callback); });
-
-    afterEach(reset);
-
-    return memoizer;
-  };
-
-  memoizer.is = this.is;
-};
-
-/** Return a new Memoizer object */
-Memoizer.memo = function() {
-  return new Memoizer();
-};
-
 module.exports = {
-  httpCache:     require('../lib/http-cache'),
-  http:          require('http'),
-  sinon:         require('sinon'),
-
-  memo: Memoizer.memo,
+  httpCache: require('../lib/http-cache'),
+  http:      require('http'),
+  sinon:     require('sinon'),
+  memo:      require('memo-is'),
 
   createRequest: function createRequest(method, url, headers){
     var req = new this.http.IncomingMessage();

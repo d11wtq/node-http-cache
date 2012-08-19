@@ -16,7 +16,8 @@
   ],
   "devDependencies": {
     "mocha": "",
-    "sinon": ""
+    "sinon": "",
+    "memo-is": ""
   },
   "scripts": {
   },
