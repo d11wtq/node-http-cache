@@ -189,7 +189,6 @@ function disableFor(ip) {
 }
 
 storage.on('request', disableFor(officeIp));
-storage.on('response', disableFor(officeIp));
 ```
 
 This is one of the selling points of a caching proxy written in
