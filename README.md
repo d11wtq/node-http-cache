@@ -1,5 +1,5 @@
 <img src="https://raw.github.com/d11wtq/node-http-cache/master/cash.jpg"
-  alt="Cash" title="You say caish, I say cache" />
+  alt="Cash" title="You say cache, I say cache" />
 
 # A HTTP Caching Proxy Using Node.js
 
@@ -43,8 +43,7 @@ will begin very soon.  Here's an outside perspective of the way it will feel.
 
 ``` javascript
 var httpCache = require('http-cache')
-  , storage = new httpCache.storage.FileStorage(
-      '/some/path', {some: 'options'})
+  , storage = new httpCache.storage.FileStorage({some: 'options'})
   ;
 
 // the the handler function will only be invoked every 600 seconds, as the
@@ -68,8 +67,7 @@ on the actual server, however.
 ``` javascript
 var httpCache = require('http-cache')
   , http      = require('http')
-  , storage = new httpCache.storage.FileStorage(
-      '/some/path', {some: 'options'})
+  , storage = new httpCache.storage.FileStorage({some: 'options'})
   ;
 
 // the the handler function will only be invoked every 600 seconds, as the
@@ -95,8 +93,7 @@ from the proxy.
 ``` javascript
 var httpCache = require('http-cache')
   , httpProxy = require('http-proxy')
-  , storage = new httpCache.storage.FileStorage(
-      '/some/path', {some: 'options'})
+  , storage = new httpCache.storage.FileStorage({some: 'options'})
   ;
 
 httpCache.createServer(
@@ -115,8 +112,7 @@ conditionally use the cache.
 ``` javascript
 var httpCache = require('http-cache')
   , http      = require('http')
-  , storage = new httpCache.storage.FileStorage(
-      '/some/path', {some: 'options'})
+  , storage = new httpCache.storage.FileStorage({some: 'options'})
   ;
 
 // the the handler function will only be invoked every 600 seconds, as the
@@ -133,8 +129,67 @@ http.createServer(function(req, res) {
 }).listen(8080);
 ```
 
-There will be various convience methods on the storage, such as `forceCache()`
-and `denyCache()` etc as the API design is finalized.
+### Fine-grained control using events
+
+Cache storages in http-cache are EventEmitters. Before decisions are made
+about whether or not to perform caching, events are emitted allowing you to
+change the default behaviour.
+
+Here's an example of a classic problem—ignoring cookies. Ordinarily, a
+RFC 2616 compliant cache will not cache any request with a Cookie header, or
+response with a Set-Cookie header. In Varnish, you actually need to modify
+the request and the response, which can have undesirable side-effects. With
+http-cache, the data used to do the decision making is distinct from the
+request and response objects themselves. While you have access to the request
+and the response—and you are free to modify them—the actual decision is based
+on an evaluation context passed in the emitted events.
+
+There are two stages to caching. 1: the request must be tagged as cacheable,
+2: the response must be tagged as cacheable. If (1) is not satisfied, (2) is
+not even checked.
+
+Get the cache to ignore cookies, but don't screw around with the actual
+cookie headers.
+
+``` javascript
+/*
+ If we remove the cookie headers, the cache won't consider them.
+ Note that the request and response sent to/from the browser remain unchanged.
+ */
+
+storage.on('request', function(req, res, evaluator) {
+  delete evaluator.headers['cookie'];
+});
+
+storage.on('response', function(req, res, evaluator) {
+  delete evaluator.headers['set-cookie'];
+});
+```
+
+You may also expressly force or deny caching by setting `evaluator.cacheable`
+to true or false. Unless you are certain, you should not set this manually,
+however, since it is final and conclusive—the cache won't make it's own
+decision if you decide for it.
+
+Let's say that if you're browsing from a particular IP address the cache
+should be completely disabled.
+
+``` javascript
+function disableFor(ip) {
+  return function(req, res, evaluator) {
+    if (req.connection.remoteAddress == ip) {
+      evaluator.cacheable = false;
+    }
+  };
+}
+
+storage.on('request', disableFor(officeIp));
+storage.on('response', disableFor(officeIp));
+```
+
+This is one of the selling points of a caching proxy written in
+Node.js—flexibility. Writing thing like this in configuration files with
+custom formats gets twisty very quickly.
 
 ## License & Copyright
 
