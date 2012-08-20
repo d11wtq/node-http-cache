@@ -26,13 +26,14 @@ module.exports = {
     return cls.__proto__ ? this.stub(cls.__proto__, target) : target;
   },
 
-  createRequest: function createRequest(method, url, headers){
+  createRequest: function createRequest(options){
     var req = new this.http.IncomingMessage();
+    options = options || {};
 
-    req.method      = method  || 'GET';
-    req.url         = url     || '/';
-    req.headers     = headers || {};
-    req.httpVersion = '1.1';
+    req.method      = options.method      || 'GET';
+    req.url         = options.url         || '/';
+    req.headers     = options.headers     || {};
+    req.httpVersion = options.httpVersion || '1.1';
 
     return req;
   },

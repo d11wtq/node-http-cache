@@ -5,23 +5,56 @@
  * See LICENSE file for details.
  */
 
-var helper = require('../test-helper')
-  , http   = require('http')
-  , assert = require('assert')
-  , sinon  = helper.sinon
-  , memo   = helper.memo
+var helper    = require('../test-helper')
+  , httpCache = helper.httpCache
+  , http      = require('http')
+  , assert    = require('assert')
+  , sinon     = helper.sinon
+  , memo      = helper.memo
   ;
 
 /**
  * Shared behaviour specs for all Storage implementations.
  */
 exports.behavesLikeACacheStorage = function(storage) {
-  describe('#isCacheableRequest()', function(){
-    var req = memo().is(function(){ return helper.createRequest(); });
+  describe('on "request" event', function(){
+    var method = memo().is(function(){ return 'GET' });
 
-    context('without any filters added', function(){
-      it('returns false', function(){
-        assert(!storage().isCacheableRequest(req()));
+    var req = memo().is(function(){
+      return helper.createRequest({
+        method: method()
+      });
+    });
+
+    var res = memo().is(function(){
+      return helper.createResponse(req());
+    });
+
+    var evaluator = memo().is(function(){
+      return new httpCache.RequestEvaluationContext(req());
+    });
+
+    beforeEach(function(){
+      storage().emit('request', req(), res(), evaluator());
+    });
+
+    context('without user-defined listeners', function(){
+      /* RFC 2616 Section 13.9 */
+      context('given a GET request', function(){
+        method.is(function(){ return 'GET' });
+
+        it('evaluates as cacheable', function(){
+          assert(evaluator().cacheable);
+        });
+      });
+
+      /* RFC 2616 Section 13.9 */
+      context('given a HEAD request', function(){
+        method.is(function(){ return 'HEAD' });
+
+        it('evaluates as cacheable', function(){
+          assert(evaluator().cacheable);
+        });
       });
     });
   });
