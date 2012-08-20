@@ -175,6 +175,11 @@ Let's say that if you're browsing from a particular IP address the cache
 should be completely disabled.
 
 ``` javascript
+/*
+ We create a closure here only for convenience, if we wanted to add other IPs.
+ Of course, you could just write the callbacks by hand.
+ */
+
 function disableFor(ip) {
   return function(req, res, evaluator) {
     if (req.connection.remoteAddress == ip) {
