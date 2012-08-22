@@ -18,11 +18,13 @@ var helper    = require('../test-helper')
  */
 exports.behavesLikeACacheStorage = function(storage) {
   describe('on "request" event', function(){
-    var method = memo().is(function(){ return 'GET' });
+    var method  = memo().is(function(){ return 'GET' });
+    var headers = memo().is(function(){ return {} });
 
     var req = memo().is(function(){
       return helper.createRequest({
-        method: method()
+        method:  method(),
+        headers: headers()
       });
     });
 
@@ -54,6 +56,15 @@ exports.behavesLikeACacheStorage = function(storage) {
 
         it('evaluates as cacheable', function(){
           assert(evaluator().cacheable);
+        });
+      });
+
+      /* RFC 2616 Section 13.1.6 */
+      context('with cache-control: max-age=0', function(){
+        headers.is(function(){ return {'cache-control': 'max-age=0'} });
+
+        it('evaluates as uncacheable', function(){
+          assert(!evaluator().cacheable);
         });
       });
     });
