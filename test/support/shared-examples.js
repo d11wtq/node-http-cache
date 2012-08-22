@@ -67,6 +67,15 @@ exports.behavesLikeACacheStorage = function(storage) {
           assert(!evaluator().cacheable);
         });
       });
+
+      /* RFC 2616 Section 13.1.6 (logical, but not stated) */
+      context('with cache-control: max-age < 0', function(){
+        headers.is(function(){ return {'cache-control': 'max-age=-9999'} });
+
+        it('evaluates as uncacheable', function(){
+          assert(!evaluator().cacheable);
+        });
+      });
     });
   });
 };
