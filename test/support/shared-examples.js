@@ -41,7 +41,7 @@ exports.behavesLikeACacheStorage = function(storage) {
     });
 
     context('without user-defined listeners', function(){
-      /* RFC 2616 Section 13.9 */
+      /* RFC 2616 Section 13.9 & 13.10 */
       context('given a GET request', function(){
         method.is(function(){ return 'GET' });
 
@@ -50,7 +50,7 @@ exports.behavesLikeACacheStorage = function(storage) {
         });
       });
 
-      /* RFC 2616 Section 13.9 */
+      /* RFC 2616 Section 13.9 & 13.10 */
       context('given a HEAD request', function(){
         method.is(function(){ return 'HEAD' });
 
@@ -71,6 +71,24 @@ exports.behavesLikeACacheStorage = function(storage) {
       /* RFC 2616 Section 13.1.6 (logical, but not stated) */
       context('with cache-control: max-age < 0', function(){
         headers.is(function(){ return {'cache-control': 'max-age=-9999'} });
+
+        it('evaluates as uncacheable', function(){
+          assert(!evaluator().cacheable);
+        });
+      });
+
+      /* RFC 2616 Section 14.9 */
+      context('with cache-control: no-cache', function(){
+        headers.is(function(){ return {'cache-control': 'no-cache'} });
+
+        it('evaluates as uncacheable', function(){
+          assert(!evaluator().cacheable);
+        });
+      });
+
+      /* RFC 2616 Section 14.9 */
+      context('with cache-control: no-store', function(){
+        headers.is(function(){ return {'cache-control': 'no-store'} });
 
         it('evaluates as uncacheable', function(){
           assert(!evaluator().cacheable);
