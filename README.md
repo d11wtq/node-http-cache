@@ -136,19 +136,30 @@ about whether or not to perform caching, events are emitted allowing you to
 change the default behaviour.
 
 Here's an example of a classic problem—ignoring cookies. Ordinarily, a
-RFC 2616 compliant cache will not cache any request with a Cookie header, or
-response with a Set-Cookie header. In Varnish, you actually need to modify
-the request and the response, which can have undesirable side-effects. With
-http-cache, the data used to do the decision making is distinct from the
-request and response objects themselves. While you have access to the request
-and the response—and you are free to modify them—the actual decision is based
-on an evaluation context passed in the emitted events.
+well-reasoned cache will not cache any response if the request contains a
+Cookie header, or if the response contains a Set-Cookie header. In Varnish,
+you actually need to modify the request and the response, which can have
+undesirable side-effects. With http-cache, the data used to do the decision
+making is distinct from the request and response objects themselves. While you
+have access to the request and the response—and you are free to modify
+them—the actual decision is based on an evaluation context passed in the
+emitted events.
 
-There are two stages to caching. 1: the request must be tagged as cacheable,
-2: the response must be tagged as cacheable. If (1) is not satisfied, (2) is
-not even checked.
+In order to store a response in the cache storage, two things must be set true
 
-Get the cache to ignore cookies, but don't screw around with the actual
+  1. The request evaluator must be flagged as `storable = true`
+  2. Likewise, the response evaluator must be flagged `storable = true`
+
+In order to serve an existing cached response, just one thing must be true
+
+  1. The request evaluator must be flagged as `retrievable = true`
+
+Leaving any of these flags undefined allows the cache to follow its default,
+RFC 2616-compliant behaviour. Note that even if a request evaluator is flagged
+`retrievable`, the cache may still need to talk to the origin server, if no
+data has yet been cached.
+
+Here we get the cache to ignore cookies, but don't screw around with the actual
 cookie headers.
 
 ``` javascript
@@ -166,7 +177,7 @@ storage.on('response', function(req, res, evaluator) {
 });
 ```
 
-You may also expressly force or deny caching by setting `evaluator.cacheable`
+You may also expressly force or deny caching by setting `evaluator.storable`
 to true or false. Unless you are certain, you should not set this manually,
 however, since it is final and conclusive—the cache won't make it's own
 decision if you decide for it.
@@ -183,7 +194,8 @@ should be completely disabled.
 function disableFor(ip) {
   return function(req, res, evaluator) {
     if (req.connection.remoteAddress == ip) {
-      evaluator.cacheable = false;
+      evaluator.storable    = false;
+      evaluator.retrievable = false;
     }
   };
 }
@@ -191,8 +203,12 @@ function disableFor(ip) {
 storage.on('request', disableFor(officeIp));
 ```
 
+In the above example, since the cache determines as not-storable result as
+soon as the request comes in, the response is not even checked for
+cacheability.
+
 This is one of the selling points of a caching proxy written in
-Node.js—flexibility. Writing thing like this in configuration files with
+Node.js—flexibility. Writing things like this in configuration files with
 custom formats gets twisty very quickly.
 
 ## License & Copyright

@@ -45,8 +45,12 @@ exports.behavesLikeACacheStorage = function(storage) {
       context('given a GET request', function(){
         method.is(function(){ return 'GET' });
 
-        it('evaluates as cacheable', function(){
-          assert(evaluator().cacheable);
+        it('evaluates as storable', function(){
+          assert(evaluator().storable);
+        });
+
+        it('evaluates as retrievable', function(){
+          assert(evaluator().retrievable);
         });
       });
 
@@ -54,8 +58,12 @@ exports.behavesLikeACacheStorage = function(storage) {
       context('given a HEAD request', function(){
         method.is(function(){ return 'HEAD' });
 
-        it('evaluates as cacheable', function(){
-          assert(evaluator().cacheable);
+        it('evaluates as storable', function(){
+          assert(evaluator().storable);
+        });
+
+        it('evaluates as retrievable', function(){
+          assert(evaluator().retrievable);
         });
       });
 
@@ -63,8 +71,12 @@ exports.behavesLikeACacheStorage = function(storage) {
       context('with cache-control: max-age=0', function(){
         headers.is(function(){ return {'cache-control': 'max-age=0'} });
 
-        it('evaluates as uncacheable', function(){
-          assert(!evaluator().cacheable);
+        it('evaluates as storable', function(){
+          assert(evaluator().storable);
+        });
+
+        it('evaluates as not retrievable', function(){
+          assert(!evaluator().retrievable);
         });
       });
 
@@ -72,8 +84,12 @@ exports.behavesLikeACacheStorage = function(storage) {
       context('with cache-control: max-age < 0', function(){
         headers.is(function(){ return {'cache-control': 'max-age=-9999'} });
 
-        it('evaluates as uncacheable', function(){
-          assert(!evaluator().cacheable);
+        it('evaluates as storable', function(){
+          assert(evaluator().storable);
+        });
+
+        it('evaluates as not retrievable', function(){
+          assert(!evaluator().retrievable);
         });
       });
 
@@ -81,8 +97,12 @@ exports.behavesLikeACacheStorage = function(storage) {
       context('with cache-control: no-cache', function(){
         headers.is(function(){ return {'cache-control': 'no-cache'} });
 
-        it('evaluates as uncacheable', function(){
-          assert(!evaluator().cacheable);
+        it('evaluates as not storable', function(){
+          assert(!evaluator().storable);
+        });
+
+        it('evaluates as not retrievable', function(){
+          assert(!evaluator().retrievable);
         });
       });
 
@@ -90,8 +110,25 @@ exports.behavesLikeACacheStorage = function(storage) {
       context('with cache-control: no-store', function(){
         headers.is(function(){ return {'cache-control': 'no-store'} });
 
-        it('evaluates as uncacheable', function(){
-          assert(!evaluator().cacheable);
+        it('evaluates as not storable', function(){
+          assert(!evaluator().storable);
+        });
+
+        it('evaluates as not retrievable', function(){
+          assert(!evaluator().retrievable);
+        });
+      });
+
+      /* RFC 2616 Section 14.9 */
+      context('with pragma: no-cache', function(){
+        headers.is(function(){ return {'pragma': 'no-cache'} });
+
+        it('evaluates as not storable', function(){
+          assert(!evaluator().storable);
+        });
+
+        it('evaluates as not retrievable', function(){
+          assert(!evaluator().retrievable);
         });
       });
     });
