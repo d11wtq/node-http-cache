@@ -14,16 +14,16 @@ module.exports = {
   memo:      require('memo-is'),
 
   /** Create a full stub object based on the given prototype */
-  stub: function(obj, target) {
+  stub: function(obj, target){
     var self = this;
-    var cls = (typeof obj == 'function') ? obj.prototype : obj;
-    target = target || {};
+    var proto = (typeof obj == 'function') ? obj.prototype : obj;
+    target = target || { __proto__: proto, constructor: proto.constructor };
 
-    Object.getOwnPropertyNames(cls).filter(function(p){
-      return typeof cls[p] == 'function';
+    Object.getOwnPropertyNames(proto).filter(function(p){
+      return typeof proto[p] == 'function' && typeof {}[p] == 'undefined';
     }).forEach(function(p) { target[p] = self.sinon.stub() });
 
-    return cls.__proto__ ? this.stub(cls.__proto__, target) : target;
+    return proto.__proto__ ? this.stub(proto.__proto__, target) : target;
   },
 
   createRequest: function createRequest(options){
