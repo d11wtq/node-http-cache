@@ -185,4 +185,51 @@ exports.behavesLikeACacheStorage = function(storage) {
       });
     });
   });
+
+  describe('on "response" event', function(){
+    var statusCode = memo().is(function(){ return 200 });
+    var headers    = memo().is(function(){ return {} });
+
+    var req = memo().is(function(){ return helper.createRequest() });
+    var res = memo().is(function(){ return helper.createResponse(req()) });
+
+    var evaluator = memo().is(function(){
+      return new httpCache.ResponseEvaluationContext(
+        res(), statusCode(), headers()
+      );
+    });
+
+    beforeEach(function(){
+      storage().emit('response', req(), res(), evaluator());
+    });
+
+    context('without user-defined listeners', function(){
+      /* RFC 2616 Section 14.9 */
+      context('with cache-control: private', function(){
+        headers.is(function(){ return {'cache-control':'private, max-age=60'} });
+
+        it('evaluates as not storable', function(){
+          assert(!evaluator().storable);
+        });
+      });
+
+      /* RFC 2616 Section 14.9 */
+      context('with cache-control: no-cache', function(){
+        headers.is(function(){ return {'cache-control':'no-cache'} });
+
+        it('evaluates as not storable', function(){
+          assert(!evaluator().storable);
+        });
+      });
+
+      /* RFC 2616 Section 14.9 */
+      context('with cache-control: max-age=60', function(){
+        headers.is(function(){ return {'cache-control':'max-age=60'} });
+
+        it('evaluates as storable', function(){
+          assert(evaluator().storable);
+        });
+      });
+    });
+  });
 };
