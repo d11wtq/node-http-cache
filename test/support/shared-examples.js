@@ -133,27 +133,55 @@ exports.behavesLikeACacheStorage = function(storage) {
       });
     });
 
-    context('with a listener that sets storable = false', function(){
+    context('with a listener that sets storable', function(){
+      var flag = memo().is(function(){ return; });
+
       before(function(){
         storage().on('request', function(req, res, evaluation){
-          evaluation.storable = false;
+          evaluation.flagStorable(flag());
         });
       });
 
-      it('evaluates as not storable', function(){
-        assert(!evaluator().storable);
+      describe('to false', function(){
+        flag.is(function(){ return false; });
+
+        it('evaluates as not storable', function(){
+          assert(!evaluator().storable);
+        });
+      });
+
+      describe('to true', function(){
+        flag.is(function(){ return true; });
+
+        it('evaluates as storable', function(){
+          assert(evaluator().storable);
+        });
       });
     });
 
-    context('with a listener that sets retrievable = false', function(){
+    context('with a listener that sets retrievable', function(){
+      var flag = memo().is(function(){ return; });
+
       before(function(){
         storage().on('request', function(req, res, evaluation){
-          evaluation.retrievable = false;
+          evaluation.flagRetrievable(flag());
         });
       });
 
-      it('evaluates as not retrievable', function(){
-        assert(!evaluator().retrievable);
+      describe('to false', function(){
+        flag.is(function(){ return false; });
+
+        it('evaluates as not retrievable', function(){
+          assert(!evaluator().retrievable);
+        });
+      });
+
+      describe('to true', function(){
+        flag.is(function(){ return true; });
+
+        it('evaluates as retrievable', function(){
+          assert(evaluator().retrievable);
+        });
       });
     });
   });
