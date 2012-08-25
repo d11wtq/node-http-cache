@@ -133,54 +133,54 @@ exports.behavesLikeACacheStorage = function(storage) {
       });
     });
 
-    context('with a listener that sets storable', function(){
+    context('with a user-defined listener', function(){
       var flag = memo().is(function(){ return; });
 
-      before(function(){
-        storage().on('request', function(req, res, evaluation){
-          evaluation.flagStorable(flag());
+      context('that sets storable', function(){
+        before(function(){
+          storage().on('request', function(req, res, evaluation){
+            evaluation.flagStorable(flag());
+          });
+        });
+
+        describe('to false', function(){
+          flag.is(function(){ return false; });
+
+          it('evaluates as not storable', function(){
+            assert(!evaluator().storable);
+          });
+        });
+
+        describe('to true', function(){
+          flag.is(function(){ return true; });
+
+          it('evaluates as storable', function(){
+            assert(evaluator().storable);
+          });
         });
       });
 
-      describe('to false', function(){
-        flag.is(function(){ return false; });
-
-        it('evaluates as not storable', function(){
-          assert(!evaluator().storable);
+      context('that sets retrievable', function(){
+        before(function(){
+          storage().on('request', function(req, res, evaluation){
+            evaluation.flagRetrievable(flag());
+          });
         });
-      });
 
-      describe('to true', function(){
-        flag.is(function(){ return true; });
+        describe('to false', function(){
+          flag.is(function(){ return false; });
 
-        it('evaluates as storable', function(){
-          assert(evaluator().storable);
+          it('evaluates as not retrievable', function(){
+            assert(!evaluator().retrievable);
+          });
         });
-      });
-    });
 
-    context('with a listener that sets retrievable', function(){
-      var flag = memo().is(function(){ return; });
+        describe('to true', function(){
+          flag.is(function(){ return true; });
 
-      before(function(){
-        storage().on('request', function(req, res, evaluation){
-          evaluation.flagRetrievable(flag());
-        });
-      });
-
-      describe('to false', function(){
-        flag.is(function(){ return false; });
-
-        it('evaluates as not retrievable', function(){
-          assert(!evaluator().retrievable);
-        });
-      });
-
-      describe('to true', function(){
-        flag.is(function(){ return true; });
-
-        it('evaluates as retrievable', function(){
-          assert(evaluator().retrievable);
+          it('evaluates as retrievable', function(){
+            assert(evaluator().retrievable);
+          });
         });
       });
     });
