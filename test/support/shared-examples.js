@@ -132,5 +132,29 @@ exports.behavesLikeACacheStorage = function(storage) {
         });
       });
     });
+
+    context('with a listener that sets storable = false', function(){
+      before(function(){
+        storage().on('request', function(req, res, evaluation){
+          evaluation.storable = false;
+        });
+      });
+
+      it('evaluates as not storable', function(){
+        assert(!evaluator().storable);
+      });
+    });
+
+    context('with a listener that sets retrievable = false', function(){
+      before(function(){
+        storage().on('request', function(req, res, evaluation){
+          evaluation.retrievable = false;
+        });
+      });
+
+      it('evaluates as not retrievable', function(){
+        assert(!evaluator().retrievable);
+      });
+    });
   });
 };

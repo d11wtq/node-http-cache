@@ -194,8 +194,8 @@ should be completely disabled.
 function disableFor(ip) {
   return function(req, res, evaluator) {
     if (req.connection.remoteAddress == ip) {
-      evaluator.storable    = false;
-      evaluator.retrievable = false;
+      evaluator.flagStorable(false);
+      evaluator.flagRetrievable(false);
     }
   };
 }
