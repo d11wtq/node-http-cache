@@ -232,6 +232,24 @@ exports.behavesLikeACacheStorage = function(storage) {
       });
 
       /* RFC 2616 Section 14.9 */
+      context('with cache-control: max-age=0', function(){
+        headers.is(function(){ return {'cache-control':'max-age=0'} });
+
+        it('evaluates as not storable', function(){
+          assert(!evaluator().storable);
+        });
+      });
+
+      /* RFC 2616 Section 14.9 */
+      context('with cache-control: max-age=-60', function(){
+        headers.is(function(){ return {'cache-control':'max-age=-60'} });
+
+        it('evaluates as not storable', function(){
+          assert(!evaluator().storable);
+        });
+      });
+
+      /* RFC 2616 Section 14.9 */
       context('with cache-control: no-cache="x-something", max-age=60', function(){
         headers.is(function(){ return {'cache-control':'no-cache="x-something", max-age=60'} });
 
