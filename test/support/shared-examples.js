@@ -269,6 +269,24 @@ exports.behavesLikeACacheStorage = function(storage) {
 
       /* note that caches MAY store 200, 203, 206, 300, 301, 401 even without
          cache-control headers, but node-http-cache chooses not to do this */
+
+      /* RFC 2616 Section 13.3.1 */
+      context('with last-modified: anything-at-all', function(){
+        headers.is(function(){ return {'last-modified':'anything-at-all'} });
+
+        it('evaluates as storable', function(){
+          assert(evaluator().storable);
+        });
+      });
+
+      /* RFC 2616 Section 13.3.2 */
+      context('with etag: anything-at-all', function(){
+        headers.is(function(){ return {'etag':'anything-at-all'} });
+
+        it('evaluates as storable', function(){
+          assert(evaluator().storable);
+        });
+      });
     });
   });
 };
