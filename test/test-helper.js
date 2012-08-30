@@ -21,7 +21,7 @@ module.exports = {
 
     Object.getOwnPropertyNames(proto).filter(function(p){
       return typeof proto[p] == 'function' && typeof {}[p] == 'undefined';
-    }).forEach(function(p) { target[p] = self.sinon.stub() });
+    }).forEach(function(p){ target[p] = self.sinon.stub() });
 
     return proto.__proto__ ? this.stub(proto.__proto__, target) : target;
   },

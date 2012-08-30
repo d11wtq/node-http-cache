@@ -230,6 +230,45 @@ exports.behavesLikeACacheStorage = function(storage) {
           assert(evaluator().storable);
         });
       });
+
+      /* RFC 2616 Section 14.9 */
+      context('with cache-control: no-cache="x-something", max-age=60', function(){
+        headers.is(function(){ return {'cache-control':'no-cache="x-something", max-age=60'} });
+
+        it('evaluates as storable', function(){
+          assert(evaluator().storable);
+        });
+      });
+
+      /* RFC 2616 Section 13.4 */
+      context('with a 302 status code', function(){
+        statusCode.is(function(){ return 302 });
+
+        it('evaluates as not storable', function(){
+          assert(!evaluator().storable);
+        });
+      });
+
+      /* RFC 2616 Section 13.4 */
+      context('with a 404 status code', function(){
+        statusCode.is(function(){ return 404 });
+
+        it('evaluates as not storable', function(){
+          assert(!evaluator().storable);
+        });
+      });
+
+      /* RFC 2616 Section 13.4 */
+      context('with a 500 status code', function(){
+        statusCode.is(function(){ return 500 });
+
+        it('evaluates as not storable', function(){
+          assert(!evaluator().storable);
+        });
+      });
+
+      /* note that caches MAY store 200, 203, 206, 300, 301, 401 even without
+         cache-control headers, but node-http-cache chooses not to do this */
     });
   });
 };
