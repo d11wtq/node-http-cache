@@ -1,6 +1,8 @@
 <img src="https://raw.github.com/d11wtq/node-http-cache/master/cash.jpg"
   alt="Cash" title="You say cache, I say cache" />
 
+(**WARNING:** This is probably abandonware. I may pick the project back up, but I can't say for certain, or say when).
+
 # A HTTP Caching Proxy Using Node.js
 
 This is a NPM module for Node.js, to add real HTTP caching (as if it were
